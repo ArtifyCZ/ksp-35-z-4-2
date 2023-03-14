@@ -1,4 +1,5 @@
 use anyhow::Result;
+use rayon::prelude::*;
 use std::io::{BufWriter, stdin, stdout, Write};
 use token_read::TokenReader;
 
@@ -82,8 +83,11 @@ fn main() -> Result<()> {
         (calculate_primes(max_number), input_numbers)
     };
 
-    for x in input_numbers {
-        let primes = disassembly_num(x, &primes);
+    let disassembled = input_numbers.par_iter()
+        .map(|x| disassembly_num(*x, &primes))
+        .collect::<Vec<_>>();
+
+    for primes in disassembled {
         let mut primes = primes.iter();
         let Some((p, c)) = primes.next() else { todo!() };
         if *c == 1 {
