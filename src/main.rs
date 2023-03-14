@@ -72,7 +72,7 @@ fn disassembly_num(n: u128) -> Vec<(u128, u128)> {
 }
 
 fn main() -> Result<()> {
-    /*let mut input = TokenReader::new(stdin().lock());
+    let mut input = TokenReader::new(stdin().lock());
     let mut output = BufWriter::new(stdout().lock());
     let (n,): (usize,) = input.line()?;
 
@@ -95,10 +95,7 @@ fn main() -> Result<()> {
             }
         }
         write!(output, "\n")?;
-    }*/
-
-    let n = 1000;
-    dbg!(calculate_primes(n));
+    }
 
     Ok(())
 }
