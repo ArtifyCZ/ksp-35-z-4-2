@@ -40,35 +40,28 @@ fn calculate_primes(n: u64) -> Vec<u64> {
     res
 }
 
-fn disassembly_num(n: u128) -> Vec<(u128, u128)> {
-    let mut x = n;
+fn disassembly_num(n: u64, primes: &[u64]) -> Vec<(u64, u64)> {
+    let mut n = n;
 
-    let mut primes = Vec::new();
+    let mut result = Vec::new();
 
-    for i in 2..(n + 1) {
-        if x == 1 {
-            break
+    for p in primes {
+        let mut c = 0;
+
+        if n == 0 || n == 1 {
+            break;
         }
 
-        if x % i != 0 {
-            continue
+        while n % p == 0 {
+            c += 1;
+            n /= p;
         }
 
-        let mut times = 0;
-
-        while x % i == 0 {
-            times += 1;
-            x /= i;
+        if 0 < c {
+            result.push((*p, c));
         }
-
-        assert_ne!(i, 0);
-
-        primes.push((i, times));
     }
-
-    assert!(!primes.is_empty(), "primes is empty; n = {}", n);
-
-    primes
+    result
 }
 
 fn main() -> Result<()> {
@@ -76,10 +69,21 @@ fn main() -> Result<()> {
     let mut output = BufWriter::new(stdout().lock());
     let (n,): (usize,) = input.line()?;
 
-    for _ in 0..n {
-        let (x,): (u128,) = input.line()?;
-        let mut primes = disassembly_num(x);
-        primes.sort();
+    let (primes, input_numbers) = {
+        let mut input_numbers = Vec::with_capacity(n);
+        let mut max_number = 0;
+        for _ in 0..n {
+            let (x, ): (u64, ) = input.line()?;
+            if max_number < x {
+                max_number = x;
+            }
+            input_numbers.push(x);
+        }
+        (calculate_primes(max_number), input_numbers)
+    };
+
+    for x in input_numbers {
+        let primes = disassembly_num(x, &primes);
         let mut primes = primes.iter();
         let Some((p, c)) = primes.next() else { todo!() };
         if *c == 1 {
@@ -94,7 +98,7 @@ fn main() -> Result<()> {
                 write!(output, "*{}^{}", p, c)?;
             }
         }
-        write!(output, "\n")?;
+        writeln!(output)?;
     }
 
     Ok(())
