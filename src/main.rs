@@ -2,32 +2,41 @@ use anyhow::Result;
 use std::io::{BufWriter, stdin, stdout, Write};
 use token_read::TokenReader;
 
-fn calculate_primes(n: u128) -> Vec<u128> {
-    let mut primes: Vec<bool> = Vec::with_capacity(n);
+fn calculate_primes(n: u64) -> Vec<u64> {
+    let mut primes: Vec<bool> = Vec::with_capacity((n + 1) as usize);
 
-    for i in 0..n {
+    for _ in 2..=n {
         primes.push(true);
     }
 
-    for i in 0..(n.sqrt() + 1) {
-        if !primes[i] {
-            continue;
-        }
+    let mut count = 2;
 
-        let mut j = (i + 2) * 2;
-        while j <= n {
-            primes[j - 2] = false;
+    {
+        let mut p: usize = 2;
+
+        while p * p <= n as usize {
+            if primes[p - 2] {
+                count += 1;
+
+                let mut i = p * p;
+                while i <= n as usize {
+                    primes[i - 2] = false;
+                    i += p;
+                }
+            }
+
+            p += 1;
         }
     }
 
-    let mut res = Vec::new();
-    let mut primes = primes.iter().enumerate();
+    let mut res = Vec::with_capacity(count);
 
-    while let Some((i, p)) = primes.next() {
-        if *p {
-            res.push((i + 2) as u128);
+    for (p, is_prime) in primes.iter().enumerate() {
+        if *is_prime {
+            res.push((p + 2) as u64);
         }
     }
+
     res
 }
 
